@@ -192,13 +192,10 @@ const MeasurementPage = () => {
       localStorage.removeItem("agbadaOrder");
       localStorage.removeItem("pendingPayment");
       
-      setIsCompleted(true);
       toast.success("Order completed successfully! We'll contact you soon.");
       
-      // Redirect to home after 3 seconds
-      setTimeout(() => {
-        navigate("/");
-      }, 3000);
+      // Redirect to home immediately
+      navigate("/");
       
     } catch (error) {
       toast.error("Failed to submit measurements. Please try again or contact us.");
