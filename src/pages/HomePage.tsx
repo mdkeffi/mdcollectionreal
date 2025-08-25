@@ -114,11 +114,27 @@ const HomePage = () => {
     toast.success(`Welcome, ${customerName}!`);
   };
 
-  const handleShopKaptans = () => {
+  const handleShopKaptans = async () => {
+    // Send interaction data to sheets
+    await sendDataToSheets({
+      event_type: "navigation",
+      customer_name: customerName,
+      action: "shop_kaptans",
+      page: "homepage",
+      timestamp: new Date().toISOString()
+    });
     navigate("/kaptans");
   };
 
-  const handleShopAgbada = () => {
+  const handleShopAgbada = async () => {
+    // Send interaction data to sheets
+    await sendDataToSheets({
+      event_type: "navigation", 
+      customer_name: customerName,
+      action: "shop_agbada",
+      page: "homepage",
+      timestamp: new Date().toISOString()
+    });
     navigate("/agbada");
   };
 
@@ -216,7 +232,7 @@ const HomePage = () => {
         <div className="container mx-auto text-center">
           <Card className="p-8 shadow-large border-accent/20">
             <h2 className="text-2xl md:text-3xl font-playfair mb-4 gradient-accent bg-clip-text text-transparent">
-              This is the official website of MD Caps and Clothing Keffi
+              Traditional Excellence, Modern Style
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               We specialize in creating high-quality traditional Nigerian clothing including 
@@ -250,6 +266,42 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Caps Collection */}
+      <section className="py-12 px-4">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-playfair text-center mb-8 gradient-accent bg-clip-text text-transparent">
+            Caps Collection
+          </h2>
+          <div className="flex gap-6 justify-center items-center mb-8">
+            <div className="relative">
+              <img
+                src="https://i.imgur.com/5lWiyPc.jpeg"
+                alt="Cap Style 1"
+                className="h-48 w-48 object-cover rounded-xl shadow-medium hover:shadow-large transition-all cursor-pointer"
+                onClick={() => window.open("https://wa.me/2348149608006", "_blank")}
+              />
+            </div>
+            <div className="relative">
+              <img
+                src="https://i.imgur.com/94mEN77.jpeg"
+                alt="Cap Style 2"
+                className="h-48 w-48 object-cover rounded-xl shadow-medium hover:shadow-large transition-all cursor-pointer"
+                onClick={() => window.open("https://wa.me/2348149608006", "_blank")}
+              />
+            </div>
+          </div>
+          <div className="text-center">
+            <Button 
+              variant="hero" 
+              size="lg" 
+              onClick={() => window.open("https://wa.me/2348149608006", "_blank")}
+            >
+              🧢 Order Caps via WhatsApp
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-secondary text-secondary-foreground py-8 px-4">
         <div className="container mx-auto text-center">
@@ -276,6 +328,9 @@ const HomePage = () => {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 p-4">
+            <p className="text-center text-muted-foreground mb-4">
+              This is the official website of MD Caps and Clothing Keffi
+            </p>
             <p className="text-center text-muted-foreground">
               Please enter your name to continue
             </p>

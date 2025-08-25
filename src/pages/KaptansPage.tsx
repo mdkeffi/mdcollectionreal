@@ -59,14 +59,52 @@ const KaptansPage = () => {
   const [showBuyPopup, setShowBuyPopup] = useState(false);
   const [showFullImage, setShowFullImage] = useState(false);
   const [fullImageSrc, setFullImageSrc] = useState("");
+  const [showContinueOrder, setShowContinueOrder] = useState(false);
+  const [pendingOrder, setPendingOrder] = useState<any>(null);
 
   useEffect(() => {
     // Check for pending order and show resume option
-    const pendingOrder = localStorage.getItem("kaptansOrder");
-    if (pendingOrder) {
-      toast.info("You have a pending order. You can continue from where you left off.");
+    const pendingOrderData = localStorage.getItem("kaptansOrder");
+    const pendingPayment = localStorage.getItem("pendingPayment");
+    
+    if (pendingOrderData || pendingPayment) {
+      try {
+        const orderData = pendingOrderData ? JSON.parse(pendingOrderData) : null;
+        const paymentData = pendingPayment ? JSON.parse(pendingPayment) : null;
+        
+        if (orderData || paymentData) {
+          setPendingOrder(orderData || paymentData);
+          setShowContinueOrder(true);
+          toast.info("You have a pending order. Click 'Continue Order' to resume.");
+        }
+      } catch (error) {
+        console.error("Error parsing pending order:", error);
+      }
     }
   }, []);
+
+  const continueOrder = () => {
+    if (pendingOrder) {
+      // If there's a pending payment, go to payment page
+      const pendingPayment = localStorage.getItem("pendingPayment");
+      if (pendingPayment) {
+        navigate("/payment");
+        return;
+      }
+      
+      // If there's just an order, go to payment with the order details
+      const { item, sleeve, price } = pendingOrder;
+      navigate(`/payment?design=${encodeURIComponent(item.image)}&name=${encodeURIComponent(item.name)}&amount=${price}&type=kaptan&sleeve=${sleeve}`);
+    }
+  };
+
+  const cancelPendingOrder = () => {
+    localStorage.removeItem("kaptansOrder");
+    localStorage.removeItem("pendingPayment");
+    setShowContinueOrder(false);
+    setPendingOrder(null);
+    toast.success("Pending order cancelled");
+  };
 
   const formatPrice = (price: number) => {
     return `₦${price.toLocaleString()}`;
@@ -195,6 +233,28 @@ const KaptansPage = () => {
           </Button>
         </div>
       </footer>
+
+      {/* Continue Order Floating Button */}
+      {showContinueOrder && (
+        <div className="fixed bottom-4 right-4 z-50 space-y-2">
+          <Button
+            onClick={continueOrder}
+            variant="hero"
+            size="lg"
+            className="shadow-glow animate-pulse"
+          >
+            Continue Order
+          </Button>
+          <Button
+            onClick={cancelPendingOrder}
+            variant="outline"
+            size="sm"
+            className="w-full text-xs"
+          >
+            Cancel Order
+          </Button>
+        </div>
+      )}
 
       {/* Buy Options Popup */}
       <Dialog open={showBuyPopup} onOpenChange={setShowBuyPopup}>
