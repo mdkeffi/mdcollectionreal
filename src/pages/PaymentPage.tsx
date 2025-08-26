@@ -136,9 +136,8 @@ const PaymentPage = () => {
 
       toast.success("Payment successful! Redirecting to measurement...");
       
-      setTimeout(() => {
-        navigate(`/measurement?ref=${reference.reference}`);
-      }, 2000);
+      // Immediate redirect for better UX
+      navigate(`/measurement?ref=${reference.reference}`);
     },
     onClose: () => {
       // Save form data for later if user closes without paying
@@ -158,15 +157,18 @@ const PaymentPage = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b shadow-soft">
-        <div className="container mx-auto px-4 py-3">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <h1 className="text-xl font-playfair font-bold gradient-primary bg-clip-text text-transparent">
-                Payment Details
-              </h1>
+              <div>
+                <h1 className="text-xl font-playfair font-bold gradient-primary bg-clip-text text-transparent">
+                  Payment Details
+                </h1>
+                <p className="text-sm text-muted-foreground">Complete your order</p>
+              </div>
             </div>
             <Button
               variant="ghost"
@@ -265,17 +267,8 @@ const PaymentPage = () => {
               Payment Summary
             </h2>
             <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>Item Price:</span>
-                <span className="font-semibold">₦{formData.amount.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Delivery:</span>
-                <span className="font-semibold">Included</span>
-              </div>
-              <hr className="my-3" />
               <div className="flex justify-between text-lg font-bold">
-                <span>Total:</span>
+                <span>Total Amount:</span>
                 <span className="gradient-primary bg-clip-text text-transparent">
                   ₦{formData.amount.toLocaleString()}
                 </span>

@@ -47,6 +47,9 @@ const HomePage = () => {
   const [showCeoPopup, setShowCeoPopup] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [logoColorIndex, setLogoColorIndex] = useState(0);
+  const [showContinueOrder, setShowContinueOrder] = useState(false);
+  const [pendingOrder, setPendingOrder] = useState<any>(null);
 
   // Initialize component
   useEffect(() => {
@@ -55,6 +58,25 @@ const HomePage = () => {
       setShowWelcomePopup(true);
     } else {
       setCustomerName(savedName);
+    }
+
+    // Check for pending orders
+    const pendingPayment = localStorage.getItem("pendingPayment");
+    const kaptansOrder = localStorage.getItem("kaptansOrder");
+    const agbadaOrder = localStorage.getItem("agbadaOrder");
+    
+    if (pendingPayment || kaptansOrder || agbadaOrder) {
+      try {
+        const orderData = pendingPayment ? JSON.parse(pendingPayment) : 
+                         kaptansOrder ? JSON.parse(kaptansOrder) : 
+                         agbadaOrder ? JSON.parse(agbadaOrder) : null;
+        if (orderData) {
+          setPendingOrder(orderData);
+          setShowContinueOrder(true);
+        }
+      } catch (error) {
+        console.error("Error parsing pending order:", error);
+      }
     }
 
     // Update clock every second
@@ -69,6 +91,15 @@ const HomePage = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentHeroIndex((prev) => (prev + 1) % heroImages.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Logo color rotation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLogoColorIndex((prev) => (prev + 1) % 2);
     }, 3000);
 
     return () => clearInterval(interval);
@@ -142,8 +173,62 @@ const HomePage = () => {
     window.open(`https://wa.me/234${ceoInfo.phone}`, "_blank");
   };
 
+  const continueOrder = () => {
+    if (pendingOrder) {
+      // If there's a pending payment, go to payment page
+      const pendingPayment = localStorage.getItem("pendingPayment");
+      if (pendingPayment) {
+        navigate("/payment");
+        return;
+      }
+      
+      // Navigate based on order type
+      if (pendingOrder.type === "kaptan") {
+        navigate("/kaptans");
+      } else if (pendingOrder.type === "agbada") {
+        navigate("/agbada");
+      } else {
+        navigate("/payment");
+      }
+    }
+  };
+
+  const cancelPendingOrder = () => {
+    localStorage.removeItem("pendingPayment");
+    localStorage.removeItem("kaptansOrder");
+    localStorage.removeItem("agbadaOrder");
+    setShowContinueOrder(false);
+    setPendingOrder(null);
+    toast.success("Order cancelled");
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      {/* Continue Order Banner */}
+      {showContinueOrder && (
+        <div className="bg-gradient-to-r from-accent to-primary text-white py-2 px-4 text-center relative">
+          <div className="flex items-center justify-center gap-4 text-sm font-medium">
+            <span>You have a pending order</span>
+            <Button 
+              size="sm" 
+              variant="secondary" 
+              onClick={continueOrder}
+              className="h-6 text-xs"
+            >
+              Continue Order
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={cancelPendingOrder}
+              className="h-6 text-xs"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b shadow-soft">
         <div className="container mx-auto px-4 py-3">
@@ -152,7 +237,9 @@ const HomePage = () => {
               <img 
                 src="https://i.imgur.com/ShFIWdI.png" 
                 alt="MD Logo" 
-                className="h-12 w-12 rounded-full shadow-medium"
+                className={`h-12 w-12 rounded-full shadow-medium transition-all duration-500 ${
+                  logoColorIndex === 0 ? 'filter-none' : 'filter grayscale invert'
+                }`}
               />
               <div>
                 <h1 className="text-xl font-bold gradient-primary bg-clip-text text-transparent">
@@ -162,16 +249,18 @@ const HomePage = () => {
               </div>
             </div>
             
-            <nav className="hidden md:flex items-center gap-4">
-              <Button variant="ghost" onClick={() => setShowCeoPopup(true)}>
-                About CEO
+            <nav className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setShowCeoPopup(true)}>
+                <span className="hidden sm:inline">About CEO</span>
+                <span className="sm:hidden">CEO</span>
               </Button>
               <Button 
                 variant="ghost"
+                size="sm"
                 onClick={() => window.open(`https://wa.me/234${ceoInfo.phone}`, "_blank")}
               >
                 <MessageSquare className="h-4 w-4" />
-                Contact
+                <span className="hidden sm:inline ml-2">Contact</span>
               </Button>
             </nav>
           </div>
@@ -213,14 +302,6 @@ const HomePage = () => {
                 className="animate-slide-up"
               >
                 🛍️ Shop Kaptans
-              </Button>
-              <Button 
-                variant="shop" 
-                size="xl"
-                onClick={handleShopAgbada}
-                className="animate-slide-up delay-75"
-              >
-                🛒 Shop Agbada
               </Button>
             </div>
           </div>

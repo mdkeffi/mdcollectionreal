@@ -195,7 +195,9 @@ const MeasurementPage = () => {
       toast.success("Order completed successfully! We'll contact you soon.");
       
       // Redirect to home immediately
-      navigate("/");
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
       
     } catch (error) {
       toast.error("Failed to submit measurements. Please try again or contact us.");
@@ -238,15 +240,18 @@ const MeasurementPage = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b shadow-soft">
-        <div className="container mx-auto px-4 py-3">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <h1 className="text-xl font-playfair font-bold gradient-primary bg-clip-text text-transparent">
-                Measurements
-              </h1>
+              <div>
+                <h1 className="text-xl font-playfair font-bold gradient-primary bg-clip-text text-transparent">
+                  Measurements
+                </h1>
+                <p className="text-sm text-muted-foreground">Provide your measurements</p>
+              </div>
             </div>
             <Button
               variant="ghost"

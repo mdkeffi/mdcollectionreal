@@ -145,17 +145,45 @@ const KaptansPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Continue Order Button */}
+      {showContinueOrder && (
+        <div className="bg-gradient-to-r from-accent to-primary text-white py-2 px-4 text-center relative">
+          <div className="flex items-center justify-center gap-4 text-sm font-medium">
+            <span>You have a pending order</span>
+            <Button 
+              size="sm" 
+              variant="secondary" 
+              onClick={continueOrder}
+              className="h-6 text-xs"
+            >
+              Continue Order
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={cancelPendingOrder}
+              className="h-6 text-xs"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-lg border-b shadow-soft">
-        <div className="container mx-auto px-4 py-3">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <h1 className="text-xl font-playfair font-bold gradient-primary bg-clip-text text-transparent">
-                MD Kaptans Collection
-              </h1>
+              <div>
+                <h1 className="text-xl font-playfair font-bold gradient-primary bg-clip-text text-transparent">
+                  MD Kaptans Collection
+                </h1>
+                <p className="text-sm text-muted-foreground">Choose your style</p>
+              </div>
             </div>
             <Button
               variant="ghost"
@@ -165,9 +193,6 @@ const KaptansPage = () => {
               <MessageSquare className="h-5 w-5" />
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground mt-2">
-            Choose between short (short sleeve) or long (long sleeve). Prices vary based on style.
-          </p>
         </div>
       </header>
 
