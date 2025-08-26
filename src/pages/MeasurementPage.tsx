@@ -7,6 +7,16 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, MessageSquare, Ruler, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const SHEETDB_ENDPOINT = "https://sheetdb.io/api/v1/tl4p36fvtpr2f";
 
@@ -50,6 +60,7 @@ const MeasurementPage = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   useEffect(() => {
     // Load payment data
@@ -62,35 +73,10 @@ const MeasurementPage = () => {
 
     const payment: PaymentData = JSON.parse(savedPaymentData);
     setPaymentData(payment);
-
-    // Check if measurements were already saved
-    const savedMeasurements = localStorage.getItem(`measurements_${payment.reference}`);
-    if (savedMeasurements) {
-      setMeasurementData(JSON.parse(savedMeasurements));
-      toast.info("Resuming your measurements...");
-    }
-
-    // Auto-save measurements every 10 seconds
-    const autoSaveInterval = setInterval(() => {
-      if (payment.reference) {
-        localStorage.setItem(`measurements_${payment.reference}`, JSON.stringify(measurementData));
-      }
-    }, 10000);
-
-    return () => clearInterval(autoSaveInterval);
-  }, [navigate, measurementData]);
+  }, [navigate]);
 
   const handleInputChange = (field: keyof MeasurementData, value: string) => {
-    setMeasurementData(prev => {
-      const updated = { ...prev, [field]: value };
-      
-      // Save to localStorage immediately for network resilience
-      if (paymentData?.reference) {
-        localStorage.setItem(`measurements_${paymentData.reference}`, JSON.stringify(updated));
-      }
-      
-      return updated;
-    });
+    setMeasurementData(prev => ({ ...prev, [field]: value }));
   };
 
   const validateMeasurements = () => {
@@ -192,12 +178,8 @@ const MeasurementPage = () => {
       localStorage.removeItem("agbadaOrder");
       localStorage.removeItem("pendingPayment");
       
-      toast.success("Order completed successfully! We'll contact you soon.");
-      
-      // Redirect to home immediately
-      setTimeout(() => {
-        navigate("/");
-      }, 1000);
+      // Show success dialog
+      setShowSuccessDialog(true);
       
     } catch (error) {
       toast.error("Failed to submit measurements. Please try again or contact us.");
@@ -420,12 +402,6 @@ const MeasurementPage = () => {
             </p>
           </div>
 
-          {/* Auto-save Notice */}
-          <Card className="p-4 bg-muted/50">
-            <p className="text-sm text-center text-muted-foreground">
-              <span className="text-success">•</span> Your progress is automatically saved every 10 seconds
-            </p>
-          </Card>
         </div>
       </main>
 
@@ -442,6 +418,30 @@ const MeasurementPage = () => {
           </Button>
         </div>
       </footer>
+
+      {/* Success Dialog */}
+      <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-success" />
+              Order Successful!
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Your measurements have been submitted successfully. We'll contact you within 24 hours to confirm your order. 
+              Would you like to return to the home page?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowSuccessDialog(false)}>
+              Stay Here
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => navigate("/")}>
+              Return Home
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
